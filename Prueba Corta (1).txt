@@ -1,0 +1,16 @@
+//Primera Sentencia
+SELECT * FROM Products
+WHERE CategoryID =2 AND UnitPrice >= 20 AND UnitsInStock >= 100 
+
+//Segunda Sentencia
+SELECT * FROM Employees
+WHERE City = 'London' or City = 'Seattle'
+ORDER BY FirstName DESC;
+
+//Tercera Sentencia
+SELECT * FROM Orders
+WHERE OrderDate LIKE '%1997%'
+
+
+//Cuarta Sentencia 
+SELECT UnitPrice, Quantity FROM [Order Details] 

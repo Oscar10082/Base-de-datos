@@ -1,0 +1,77 @@
+Create Database Tienda
+
+
+--Se Crean las tablas con las que se trabajará.
+CREATE TABLE Venta (
+  id_Venta INT PRIMARY KEY IDENTITY(1, 1),
+  id_cliente INT,
+  Id_Producto INT,
+  Nombre VARCHAR (100),
+  unidades INT,
+  Monto_Total MONEY,
+  Fecha DATE
+)
+GO
+
+CREATE TABLE Cliente (
+  id_cliente INT PRIMARY KEY IDENTITY(1, 1),
+  Nombre VARCHAR(50),
+  Apellido VARCHAR(50),
+  Direccion VARCHAR(150)
+)
+GO
+
+CREATE TABLE Producto (
+  Id_Producto INT PRIMARY KEY IDENTITY(1, 1),
+  Marca VARCHAR(50),
+  Fecha_Caducidad DATE,
+  Precio INT
+)
+GO
+
+--Se crean las relaciones.
+
+ALTER TABLE Venta ADD FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente)
+GO
+
+ALTER TABLE Venta ADD FOREIGN KEY (Id_Producto) REFERENCES Producto (Id_Producto)
+GO
+
+
+--Se Evalua si ya existe la tabla 'Monto_Total'.
+IF OBJECT_ID( 'T_Ventas') IS NOT NULL
+BEGIN
+     DROP TABLE T_Ventas
+END
+GO
+
+--Se Evalua si ya existe el TRIGGER, si ya existe, se elimina para implementarlo de nuevo.
+IF OBJECT_ID( 'T_Ventas') IS NOT NULL
+BEGIN
+ DROP TRIGGER T_Ventas
+END
+GO
+
+-- Se crea el trigger 
+CREATE TRIGGER T_Ventas
+ON Venta
+AFTER INSERT
+AS
+BEGIN
+   IF (SELECT Monto_Total from INSERTED)<=0
+      BEGIN
+         ROLLBACK TRANSACTION
+         PRINT 'No se pudo registrar un precio igual a cero'
+      END
+   ELSE
+      PRINT 'Producto registrado correctamente'
+END
+GO
+
+--Probar trigger.
+INSERT INTO Venta VALUES (582,8521,879,'Samsung A50',30,300,2022/05/12)
+--Esta inserción marcará error.
+INSERT INTO Venta VALUES (582,8521,879,'Xiaomi Redmi Note 10',100,0,2022/05/12)
+--Comprobamos la inserción de los registros
+--en la tabla Producto.
+SELECT*FROM Venta

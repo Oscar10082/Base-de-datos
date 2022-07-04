@@ -1,0 +1,68 @@
+CREATE DATABASE Registro
+GO
+
+IF OBJECT_ID('Persona')IS NOT NULL
+  BEGIN
+    DROP TABLE Persona
+  END
+GO
+
+CREATE TABLE Persona(
+ID_Persona INT PRIMARY KEY IDENTITY(1,1),
+Nombre VARCHAR (50),
+Fecha_Nacimiento DATE,
+Edad INT,
+Correo VARCHAR(120),
+Genero VARCHAR (1)
+)
+GO
+
+IF OBJECT_ID('Verificacion')IS NOT NULL
+  BEGIN
+    DROP TRIGGER Verificacion
+  END
+GO
+
+CREATE TRIGGER Verificacion
+ON Persona
+AFTER INSERT
+AS
+BEGIN
+IF(SELECT Edad FROM INSERTED)<=18
+  BEGIN
+    ROLLBACK TRANSACTION
+    PRINT '¡La Persona debe ser mayor de edad!'
+  END
+ELSE
+  BEGIN
+     PRINT'¡Registro exitoso!'
+END
+END
+ GO
+
+ INSERT INTO Persona VALUES ('Leon','1997-10-06',21,'LeonK@gmail.com','M')
+ GO
+ INSERT INTO Persona VALUES ('Claire','1997-08-29',21,'ClaireR@gmail.com','F')
+ GO
+ INSERT INTO Persona VALUES ('Chris','1990-08-06',28,'ClaireR@gmail.com','M')
+ GO
+  INSERT INTO Persona VALUES ('Sherry','2005-12-14',15,'ClaireR@gmail.com','M')
+ GO
+
+ IF OBJECT_ID('Eliminar')IS NOT NULL
+  BEGIN
+    DROP TRIGGER Eliminar
+  END
+GO
+CREATE TRIGGER Eliminar
+ON Persona
+AFTER DELETE
+AS
+BEGIN
+	PRINT 'Registro eliminado'
+END
+GO
+
+DELETE Persona 
+WHERE Nombre =  'Chris'
+GO

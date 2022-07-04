@@ -1,0 +1,141 @@
+USE MASTER 
+GO
+
+CREATE DATABASE Disquera
+GO
+
+
+IF OBJECT_ID('Cantante')IS NOT NULL
+  BEGIN
+    DROP TABLE Cantante
+  END
+GO
+
+CREATE TABLE [Cantante] (
+  [id_Cantante] int PRIMARY KEY IDENTITY(1, 1),
+  [Nombre] varchar(50),
+  [Pais] varchar(50)
+)
+GO
+
+IF OBJECT_ID('Eliminar')IS NOT NULL
+  BEGIN
+    DROP TRIGGER Eliminar
+  END
+GO
+
+
+CREATE TRIGGER Eliminar
+ON Cantante
+AFTER DELETE
+AS
+BEGIN
+	PRINT 'Se ha eliminado un cantante de la tabla.'
+END
+
+GO
+
+IF OBJECT_ID('Cancion')IS NOT NULL
+  BEGIN
+    DROP TABLE Cancion
+  END
+GO
+
+
+CREATE TABLE [Cancion] (
+  [id_Disquera] varchar(4),
+  [Titulo] varchar(50),
+  [id_Cantante] int,
+  [FechaCreacion] date,
+  [DuracionSegundos] int,
+  [id_Cancion] varchar(4) PRIMARY KEY
+)
+GO
+IF OBJECT_ID('Disquera')IS NOT NULL
+  BEGIN
+    DROP TABLE Disquera
+  END
+GO
+CREATE TABLE [Disquera] (
+  [id_Disquera] varchar(4) PRIMARY KEY,
+  [Nombre] varchar(50)
+)
+GO
+
+IF OBJECT_ID('Empresa')IS NOT NULL
+  BEGIN
+    DROP TRIGGER Empresa
+  END
+GO
+
+
+CREATE TRIGGER Empresa
+ON Disquera
+AFTER DELETE
+AS
+BEGIN
+	PRINT 'Se ha eliminado una disquera de la tabla.'
+END
+
+GO
+
+
+
+
+IF OBJECT_ID('Album')IS NOT NULL
+  BEGIN
+    DROP TABLE Album
+  END
+GO
+
+
+CREATE TABLE [Album] (
+  [Titulo] varchar(50),
+  [id_album] int PRIMARY KEY IDENTITY(1, 1),
+  [id_Cancion] varchar(4)
+)
+GO
+
+CREATE TRIGGER Verificacion
+ON Cancion
+AFTER INSERT
+AS
+BEGIN
+IF(SELECT DuracionSegundos FROM INSERTED)>=240
+  BEGIN
+    ROLLBACK TRANSACTION
+    PRINT '¡Se ha ingresado una canción larga a la tabla.!'
+  END
+ELSE
+  BEGIN
+     PRINT'¡Se ha ingresado una canción corta a la tabla.!'
+END
+END
+ GO
+
+
+
+
+ALTER TABLE [Cancion] ADD FOREIGN KEY ([id_Cantante]) REFERENCES [Cantante] ([id_Cantante])
+GO
+
+ALTER TABLE [Disquera] ADD FOREIGN KEY ([id_Disquera]) REFERENCES [Cancion] ([id_Disquera])
+GO
+
+ALTER TABLE [Album] ADD FOREIGN KEY ([id_Cancion]) REFERENCES [Cancion] ([id_Cancion])
+GO
+
+
+INSERT INTO [Cancion] VALUES ('4578','bohemian rhapsody',352,'1975-10-06',330,'021')
+ GO
+ INSERT INTO [Cantante] VALUES (352,'Queen','Estados unidos')
+ GO
+ INSERT INTO [Disquera] VALUES ('4578','BK. Poduction')
+ GO
+ INSERT INTO [Album] VALUES ('A Night at the Opera',985,'021')
+ GO
+
+
+ DELETE Disquera
+WHERE Nombre =  'BK. Poduction'
+GO

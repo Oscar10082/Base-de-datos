@@ -1,0 +1,132 @@
+USE Master
+GO
+
+CREATE DATABASE Tienda
+
+IF OBJECT_ID('Producto')IS NOT NULL
+  BEGIN
+    DROP TABLE Producto
+  END
+GO
+
+CREATE TABLE Producto(
+  Id_Producto INT PRIMARY KEY IDENTITY(1,1),
+  Nombre             VARCHAR(50),
+  Precio             MONEY 
+)
+GO
+  
+  IF OBJECT_ID('Cliente')IS NOT NULL
+  BEGIN
+    DROP TABLE Cliente
+  END
+GO
+CREATE TABLE Cliente(
+  Id_Cliente INT PRIMARY KEY IDENTITY(1,1),
+  Nombre              VARCHAR(50),
+  Apellido            VARCHAR(50),
+  Telefono            VARCHAR(8)
+  
+)
+GO
+     
+	 IF OBJECT_ID('Venta')IS NOT NULL
+  BEGIN
+    DROP TABLE Venta
+  END
+GO
+
+CREATE TABLE Venta(
+  Id_Venta     INT PRIMARY KEY IDENTITY(1,1),
+  Id_Cliente   INT,
+  Id_Producto  INT,
+  Unidades     INT,
+  Monto_Total  MONEY,
+  Fecha        DATE
+ 
+)
+GO
+       
+	   
+	   IF OBJECT_ID('Venta_Respaldo')IS NOT NULL
+  BEGIN
+    DROP TABLE Venta_Respaldo
+  END
+GO
+
+CREATE TABLE Venta_Respaldo(
+  Id_Venta INT PRIMARY KEY,
+  Id_Cliente INT,
+  Id_Producto INT,
+  Unidades INT,
+  Monto_Total MONEY,
+  Fecha DATE
+)
+GO
+
+ALTER TABLE Venta
+ADD CONSTRAINT FK_Cliente_Venta
+FOREIGN KEY(Id_Cliente)REFERENCES Cliente(Id_Cliente)
+GO
+ALTER TABLE Venta
+ADD CONSTRAINT FK_Producto_Venta
+FOREIGN KEY(Id_Producto)REFERENCES Producto(Id_Producto)
+GO
+
+IF OBJECT_ID('T_VerificarMonto')IS NOT NULL
+  BEGIN
+    DROP TRIGGER T_VerificarMonto
+  END
+GO
+CREATE TRIGGER T_VerificarMonto
+ON Venta
+AFTER INSERT
+AS
+BEGIN
+
+IF(SELECT Monto_Total FROM INSERTED)<=0
+  BEGIN
+    ROLLBACK TRANSACTION
+    PRINT '¡No debe registar un monto negativo o igual a cero!'
+  END
+ELSE
+  BEGIN
+     INSERT Venta_Respaldo SELECT*FROM INSERTED
+     PRINT'¡La venta se ha registrado exitosamente!'
+END
+END
+ GO
+
+ INSERT INTO Producto VALUES ('Cafè',50)
+ GO
+ INSERT INTO Producto VALUES ('Pan',20)
+ GO
+INSERT INTO Producto VALUES ('Mayonesa',30)
+ GO
+
+ SELECT*FROM Producto 
+ GO
+
+ INSERT INTO Cliente VALUES ('Leon','Kennedy','85213049')
+ GO
+  INSERT INTO Cliente VALUES ('Claire','RedField','85213049')
+ GO
+ SELECT*FROM Cliente 
+ GO
+
+ INSERT INTO Venta VALUES (1,1,2,100,'2019-12-23')
+ GO
+ INSERT INTO Venta VALUES (1,1,6,200,'2019-12-23')
+ GO
+  INSERT INTO Venta VALUES (1,1,6,250,'2019-12-23')
+ GO
+  INSERT INTO Venta VALUES (1,1,6,300,'2022-08-29')
+ GO
+  INSERT INTO Venta VALUES (1,1,6,280,'2020-10-25')
+ GO
+
+  SELECT*FROM Venta
+ GO
+
+  SELECT*FROM Venta_Respaldo
+ GO
